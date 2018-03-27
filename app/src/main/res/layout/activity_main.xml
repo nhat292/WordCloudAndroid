@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.infinitystudios.wordcloud.activities.MainActivity">
+
+    <LinearLayout
+        android:id="@+id/llWordView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/webview_height"
+        android:layout_margin="3dp"
+        android:background="@drawable/word_cloud_border"
+        android:orientation="vertical">
+
+        <com.infinitystudios.wordcloud.views.WordCloudView
+            android:id="@+id/wordCloudView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/webview_margin" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnFullScreen"
+        style="@style/Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/llWordView"
+        android:layout_margin="@dimen/item_margin_padding_small"
+        android:onClick="buttonClick"
+        android:text="@string/full_screen"
+        android:textAllCaps="true" />
+
+
+    <LinearLayout
+        android:id="@+id/llButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="@dimen/item_margin_padding_small">
+
+        <Button
+            android:id="@+id/btnWordList"
+            style="@style/Button.Primary"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:onClick="buttonClick"
+            android:text="@string/word_list" />
+
+        <Button
+            android:id="@+id/btnUpdate"
+            style="@style/Button.Primary"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/item_margin_padding_normal"
+            android:layout_weight="1"
+            android:onClick="buttonClick"
+            android:text="@string/update"
+            android:textAllCaps="true" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/edittext_height"
+        android:layout_above="@+id/llButtons"
+        android:layout_margin="@dimen/item_margin_padding_small"
+        android:background="@drawable/bg_border"
+        android:gravity="top|start"
+        android:hint="@string/hint_enter_text_here"
+        android:inputType="textMultiLine|textNoSuggestions"
+        android:padding="@dimen/item_margin_padding_small" />
+
+</RelativeLayout>

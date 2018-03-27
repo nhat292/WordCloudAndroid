@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="webview_height">250dp</dimen>
+    <dimen name="webview_margin">10dp</dimen>
+    <dimen name="edittext_height">100dp</dimen>
+
+    <dimen name="item_margin_padding_large">15dp</dimen>
+    <dimen name="item_margin_padding_normal">10dp</dimen>
+    <dimen name="item_margin_padding_small">5dp</dimen>
+
+    <dimen name="text_size_large">18sp</dimen>
+    <dimen name="text_size_normal">15sp</dimen>
+</resources>
