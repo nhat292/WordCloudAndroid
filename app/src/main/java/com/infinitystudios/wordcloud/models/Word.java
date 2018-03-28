@@ -9,11 +9,12 @@ public class Word {
     private String word;
     private int number;
 
+    private boolean checked;
+
     public Word(String word, int number) {
         this.word = word;
         this.number = number;
     }
-
 
     public String getWord() {
         return word;
@@ -29,5 +30,13 @@ public class Word {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }

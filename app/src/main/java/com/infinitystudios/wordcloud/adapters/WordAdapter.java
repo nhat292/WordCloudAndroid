@@ -20,6 +20,7 @@ public class WordAdapter extends RecyclerView.Adapter<WordViewHolder> {
 
     private List<Word> mItems;
     private RecyclerViewItemListener mListener;
+    private boolean enableDelete;
 
     public WordAdapter(List<Word> item, RecyclerViewItemListener listener) {
         this.mItems = item;
@@ -37,7 +38,7 @@ public class WordAdapter extends RecyclerView.Adapter<WordViewHolder> {
 
     @Override
     public void onBindViewHolder(WordViewHolder holder, int position) {
-        holder.bind(mItems.get(position), mListener, position);
+        holder.bind(mItems.get(position), mListener, position, enableDelete);
     }
 
     @Override
@@ -48,5 +49,9 @@ public class WordAdapter extends RecyclerView.Adapter<WordViewHolder> {
     public void itemRemoved(int position) {
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mItems.size() - 1);
+    }
+
+    public void setEnableDelete(boolean enableDelete) {
+        this.enableDelete = enableDelete;
     }
 }

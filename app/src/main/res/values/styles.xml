@@ -11,6 +11,18 @@
         <item name="android:windowBackground">@android:color/white</item>
     </style>
 
+    <style name="TextStyle" parent="android:Widget.TextView">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">@dimen/text_size_normal</item>
+    </style>
+
+    <style name="TextStyle.Primary" parent="TextStyle">
+        <item name="android:textSize">@dimen/text_size_large</item>
+    </style>
+
     <style name="Button" parent="Widget.AppCompat.Button">
         <item name="android:textColor">@android:color/black</item>
         <item name="android:layout_height">wrap_content</item>
@@ -24,6 +36,28 @@
 
     <style name="Button.Primary" parent="Button">
         <item name="android:background">@drawable/bg_border</item>
+    </style>
+
+    <style name="Button.Secondary" parent="Button">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+    </style>
+
+    <style name="checkBoxComponent" parent="AppTheme">
+        <!--Checked color-->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--Checkbox border color-->
+        <item name="android:textColorSecondary">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="ImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:foreground">?actionBarItemBackground</item>
     </style>
 
 </resources>

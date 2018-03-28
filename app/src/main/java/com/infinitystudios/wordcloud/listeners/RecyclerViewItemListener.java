@@ -9,6 +9,7 @@ public interface RecyclerViewItemListener {
     int TYPE_ITEM = 0;
     int TYPE_DELETE = 1;
     int TYPE_EDIT = 2;
+    int TYPE_CHECKED = 3;
 
     void onClick(int position, int type);
 }

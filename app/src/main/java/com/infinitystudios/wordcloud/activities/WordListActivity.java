@@ -3,18 +3,25 @@ package com.infinitystudios.wordcloud.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.infinitystudios.wordcloud.R;
 import com.infinitystudios.wordcloud.adapters.WordAdapter;
+import com.infinitystudios.wordcloud.listeners.DialogListener;
 import com.infinitystudios.wordcloud.listeners.RecyclerViewItemListener;
 import com.infinitystudios.wordcloud.models.Word;
 import com.infinitystudios.wordcloud.utils.Helper;
+import com.infinitystudios.wordcloud.utils.SharedPreferenceData;
+import com.infinitystudios.wordcloud.utils.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +36,10 @@ import java.util.Map;
 public class WordListActivity extends BaseActivity {
 
     private RecyclerView recyclerViewWord;
+    private RelativeLayout rlDelete;
+    private TextView txtSelectCount;
+    private CheckBox checkboxAll;
+    private TextView txtEmpty;
 
     private List<Word> mItems = new ArrayList<>();
     private WordAdapter mWordAdapter;
@@ -42,39 +53,55 @@ public class WordListActivity extends BaseActivity {
         prepareData();
 
         recyclerViewWord = findViewById(R.id.recyclerViewWord);
+        rlDelete = findViewById(R.id.rlDelete);
+        txtSelectCount = findViewById(R.id.txtSelectCount);
+        checkboxAll = findViewById(R.id.checkboxAll);
+        txtEmpty = findViewById(R.id.txtEmpty);
+
+        rlDelete.setVisibility(View.GONE);
+
+
+        int spacingInPixels = (int) getResources().getDimension(R.dimen.word_item_spacing);
+        recyclerViewWord.addItemDecoration(new SpacesItemDecoration(0, spacingInPixels, 0, 0, false));
 
         mWordAdapter = new WordAdapter(mItems, new RecyclerViewItemListener() {
             @Override
             public void onClick(final int position, int type) {
-                if (type != TYPE_ITEM) return;
-                AlertDialog.Builder builder = new AlertDialog.Builder(WordListActivity.this);
-                builder.setTitle(getString(R.string.options));
-                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(WordListActivity.this, R.layout.simple_list_item);
-                arrayAdapter.add("Edit");
-                arrayAdapter.add("Delete");
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        dialogInterface.dismiss();
-                        if (which == 0) { // Edit
-                            showEditPopup(position);
-                        } else { // Delete
-                            mItems.remove(position);
-                            mWordAdapter.itemRemoved(position);
-                            hasChanged = true;
+                if (type == TYPE_CHECKED) {
+                    updateChecked(getCheckedCount());
+                }
+
+                if (type == TYPE_ITEM) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(WordListActivity.this);
+                    final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(WordListActivity.this, R.layout.simple_list_item);
+                    arrayAdapter.add(getString(R.string.edit));
+                    arrayAdapter.add(getString(R.string.delete));
+                    builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int which) {
+                            dialogInterface.dismiss();
+                            if (which == 0) { // Edit
+                                showEditPopup(position);
+                            } else { // Delete
+                                // Show delete layout
+                                rlDelete.setVisibility(View.VISIBLE);
+
+                                // Notify adapter changed
+                                mWordAdapter.setEnableDelete(true);
+                                mItems.get(position).setChecked(true);
+                                notifyChangeAllItemsDelay();
+
+                                // Update selected count
+                                updateChecked(1);
+                            }
                         }
-                    }
-                });
-                builder.show();
+                    });
+                    builder.show();
+                }
             }
         });
         recyclerViewWord.setAdapter(mWordAdapter);
+        showEmptyIfNeeded();
     }
 
     @Override
@@ -86,11 +113,70 @@ public class WordListActivity extends BaseActivity {
                     stringBuilder.append(word.getWord()).append(" ");
                 }
             }
+            String data = stringBuilder.toString();
+            SharedPreferenceData.setWordData(data);
             Intent intent = new Intent();
-            intent.putExtra("DATA", stringBuilder.toString());
+            intent.putExtra("DATA", data);
             setResult(RESULT_OK, intent);
         }
         super.onBackPressed();
+    }
+
+
+    public void buttonClick(View view) {
+        if (view.getId() == R.id.imgBtnDelete) {
+            if (getCheckedCount() == 0) {
+                showDialog(
+                        null,
+                        getString(R.string.message_select_at_least_one_word),
+                        getString(R.string.ok),
+                        null,
+                        null
+                );
+                return;
+            }
+            showDialog(
+                    getString(R.string.delete),
+                    getString(R.string.message_delete_confirm),
+                    getString(R.string.yes),
+                    getString(R.string.no),
+                    new DialogListener() {
+                        @Override
+                        public void onNegative(DialogInterface dialogInterface) {
+
+                        }
+
+                        @Override
+                        public void onPositive(DialogInterface dialogInterface) {
+                            if (checkboxAll.isChecked()) {
+                                hasChanged = true;
+                                mItems.clear();
+                                mWordAdapter.notifyDataSetChanged();
+                            } else {
+                                for (int i = mItems.size() - 1; i >= 0; i--) {
+                                    if (mItems.get(i).isChecked()) {
+                                        mItems.remove(i);
+                                        mWordAdapter.itemRemoved(i);
+                                        hasChanged = true;
+                                    }
+                                }
+                            }
+                            hideDelete();
+                            showEmptyIfNeeded();
+                        }
+                    }
+            );
+        }
+        if (view.getId() == R.id.imgBtnCancel) {
+            hideDelete();
+            selectAll(false);
+        }
+        if (view.getId() == R.id.checkboxAll) {
+            selectAll(checkboxAll.isChecked());
+            notifyChangeAllItems();
+            updateChecked(getCheckedCount());
+        }
+
     }
 
     private void prepareData() {
@@ -103,7 +189,7 @@ public class WordListActivity extends BaseActivity {
             mItems.add(new Word((String) entry.getKey(), (int) entry.getValue()));
         }
 
-
+        // Sort array list
         Collections.sort(mItems, new Comparator<Word>() {
             @Override
             public int compare(Word w1, Word w2) {
@@ -128,13 +214,13 @@ public class WordListActivity extends BaseActivity {
         editWord.setText(mItems.get(position).getWord());
         editNumber.setText(String.valueOf(mItems.get(position).getNumber()));
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
             }
         });
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String word = editWord.getText().toString();
@@ -153,4 +239,50 @@ public class WordListActivity extends BaseActivity {
         builder.show();
         editWord.setSelection(editWord.getText().toString().length());
     }
+
+    private int getCheckedCount() {
+        int count = 0;
+        for (Word w : mItems) {
+            if (w.isChecked()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void updateChecked(int count) {
+        txtSelectCount.setText(String.format(getString(R.string.select_format), count));
+    }
+
+    private void notifyChangeAllItemsDelay() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mWordAdapter.notifyItemRangeChanged(0, mItems.size() - 1);
+            }
+        }, 100);
+    }
+
+    private void notifyChangeAllItems() {
+        mWordAdapter.notifyItemRangeChanged(0, mItems.size() - 1);
+    }
+
+    private void hideDelete() {
+        mWordAdapter.setEnableDelete(false);
+        notifyChangeAllItemsDelay();
+        rlDelete.setVisibility(View.GONE);
+    }
+
+    private void selectAll(boolean checked) {
+        for (Word w : mItems) {
+            w.setChecked(checked);
+        }
+    }
+
+    private void showEmptyIfNeeded() {
+        if (mItems.size() == 0) {
+            txtEmpty.setVisibility(View.VISIBLE);
+        }
+    }
+
 }

@@ -25,6 +25,8 @@ public class WordCloudView extends WebView implements View.OnTouchListener {
 
     public interface WordCloudListener {
         void onPageFinished(WebView view);
+
+        void onTouch();
     }
 
     private WordCloudListener mListener;
@@ -60,6 +62,14 @@ public class WordCloudView extends WebView implements View.OnTouchListener {
         });
 
         this.loadUrl("file:///android_asset/index.html");
+
+
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
 
@@ -85,6 +95,13 @@ public class WordCloudView extends WebView implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (mListener != null) {
+                mListener.onTouch();
+            } else {
+                Log.e(getClass().getSimpleName(), "WordCloudListener must not be null");
+            }
+        }
         return (event.getAction() == MotionEvent.ACTION_MOVE);
     }
 }

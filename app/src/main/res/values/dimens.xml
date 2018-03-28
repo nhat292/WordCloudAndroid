@@ -3,6 +3,7 @@
     <dimen name="webview_height">250dp</dimen>
     <dimen name="webview_margin">10dp</dimen>
     <dimen name="edittext_height">100dp</dimen>
+    <dimen name="word_item_spacing">4dp</dimen>
 
     <dimen name="item_margin_padding_large">15dp</dimen>
     <dimen name="item_margin_padding_normal">10dp</dimen>
