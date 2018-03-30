@@ -1,17 +1,23 @@
 package com.infinitystudios.wordcloud.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.IntRange;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.infinitystudios.wordcloud.App;
+import com.infinitystudios.wordcloud.models.Word;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by Nhat on 3/27/18.
@@ -23,17 +29,18 @@ public final class Helper {
 
     }
 
-    public static Map<String, Integer> getMapDataWithUniqueKey(String[] input) {
-        Map<String, Integer> map = new HashMap<>();
-        for (String str : input) {
-            if (str.isEmpty()) continue;
-            if (map.containsKey(str)) {
-                map.put(str, map.get(str) + 1);
-            } else {
-                map.put(str, 1);
+    public static void sortWordsDescending(List<Word> words) {
+        Collections.sort(words, new Comparator<Word>() {
+            @Override
+            public int compare(Word w1, Word w2) {
+                if (w1.getNumber() < w2.getNumber()) {
+                    return 1;
+                } else if (w1.getNumber() > w2.getNumber()) {
+                    return -1;
+                }
+                return 0;
             }
-        }
-        return map;
+        });
     }
 
 
@@ -82,5 +89,36 @@ public final class Helper {
         } else {
             Log.e("Helper", "External storage is not available");
         }
+    }
+
+    public static String formatColorValues(
+            @IntRange(from = 0, to = 255) int red,
+            @IntRange(from = 0, to = 255) int green,
+            @IntRange(from = 0, to = 255) int blue) {
+        return String.format("#%02X%02X%02X",
+                assertColorValueInRange(red),
+                assertColorValueInRange(green),
+                assertColorValueInRange(blue)
+        );
+    }
+
+    private static int assertColorValueInRange(@IntRange(from = 0, to = 255) int colorValue) {
+        return ((0 <= colorValue) && (colorValue <= 255)) ? colorValue : 0;
+    }
+
+    public static int getScreenWidth(Context context) {
+        WindowManager windowManager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        return dm.widthPixels;
+    }
+
+    public static int getScreenHeight(Context context) {
+        WindowManager windowManager = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(dm);
+        return dm.heightPixels;
     }
 }

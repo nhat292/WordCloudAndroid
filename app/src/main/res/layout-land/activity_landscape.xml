@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.infinitystudios.wordcloud.views.WordCloudView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/wordCloudView"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent">
+
+    <com.infinitystudios.wordcloud.views.WordCloudView
+        android:id="@+id/wordCloudView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        style="@style/ImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:onClick="refreshClick"
+        android:padding="@dimen/item_margin_padding_normal"
+        android:src="@drawable/ic_refresh_black_24dp" />
+</RelativeLayout>

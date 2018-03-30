@@ -4,15 +4,15 @@
 (function() {
   function wordcloud() {
     var selector = '#wordcloud',
-        element = d3.select(selector),
-        transitionDuration = 200,
-        scale = 'sqrt',
-        fill = d3.scale.category20b(),
-        layout = d3.layout.cloud(),
-        fontSize = null,
-        svg = null,
-        vis = null,
-        onwordclick = undefined;
+      element = d3.select(selector),
+      transitionDuration = 200,
+      scale = 'sqrt',
+      fill = d3.scale.category20b(),
+      layout = d3.layout.cloud(),
+      fontSize = null,
+      svg = null,
+      vis = null,
+      onwordclick = undefined;
 
     wordcloud.element = function(x) {
       if (!arguments.length) return element;
@@ -44,9 +44,9 @@
       return wordcloud;
     };
 
-    wordcloud.onwordclick = function (func) {
-        onwordclick = func;
-        return wordcloud;
+    wordcloud.onwordclick = function(func) {
+      onwordclick = func;
+      return wordcloud;
     }
 
     wordcloud.start = function() {
@@ -69,12 +69,14 @@
       vis = svg.append("g").attr("transform", "translate(" + [layout.size()[0] >> 1, layout.size()[1] >> 1] + ")");
 
       update();
-      svg.on('resize', function() { update() });
+      svg.on('resize', function() {
+        update()
+      });
     }
 
     function draw(data, bounds) {
       var w = layout.size()[0],
-          h = layout.size()[1];
+        h = layout.size()[1];
 
       svg.attr("width", w).attr("height", h);
 
@@ -86,7 +88,11 @@
 
       var text = vis.selectAll("text")
         .data(data, function(d) {
-          return d.text.toLowerCase();
+          return d.text;
+        });
+      var color = vis.selectAll("text")
+        .data(data, function(d) {
+          return d.color;
         });
       text.transition()
         .duration(transitionDuration)
@@ -112,29 +118,16 @@
           return d.font || layout.font() || svg.style("font-family");
         })
         .style("fill", function(d) {
-          return fill(d.text.toLowerCase());
+          return d.color ? d.color : fill(d.text.toLowerCase());
         })
         .text(function(d) {
           return d.text;
         })
         // clickable words
-        .style("cursor", function(d, i) {
-          if (onwordclick !== undefined) return 'pointer';
-        })
-        .on("mouseover", function(d, i) {
-          if (onwordclick !== undefined) {
-            d3.select(this).transition().style('font-size', d.size + 3 + 'px');
-          }
-        })
-        .on("mouseout", function(d, i) {
-          if (onwordclick !== undefined) {
-            d3.select(this).transition().style('font-size', d.size + 'px');
-          }
-        })
         .on("click", function(d, i) {
           if (onwordclick !== undefined) {
-                onwordclick(d,i);
-            }
+            onwordclick(d, i);
+          }
         });
 
       vis.transition()

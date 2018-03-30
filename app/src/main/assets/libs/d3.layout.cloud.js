@@ -209,7 +209,8 @@
   }
 
   function cloudRotate() {
-    return (~~(Math.random() * 6) - 3) * 30;
+    var degree = window.rotate ? window.rotate : 30;
+    return (~~(Math.random() * 6) - 3) * degree;
   }
 
   function cloudPadding() {

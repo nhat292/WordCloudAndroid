@@ -6,10 +6,12 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.infinitystudios.wordcloud.listeners.DialogListener;
 
@@ -62,5 +64,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         });
 
         builder.show();
+    }
+
+    public void showToast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    public void showToast(@StringRes int resId) {
+        showToast(getString(resId));
     }
 }

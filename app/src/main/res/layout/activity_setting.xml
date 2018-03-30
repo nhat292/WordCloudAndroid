@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/item_margin_padding_normal">
+
+    <LinearLayout
+        android:id="@+id/llContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtTitle"
+            style="@style/TextStyle"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/setting"
+            android:textSize="@dimen/text_size_title"
+            android:textStyle="bold" />
+
+        <TextView
+            style="@style/TextStyle"
+            android:layout_marginStart="@dimen/item_margin_padding_small"
+            android:layout_marginTop="80dp"
+            android:text="@string/text_increasing_relation"
+            android:textAllCaps="true" />
+
+        <TextView
+            android:id="@+id/txtPercent"
+            style="@style/TextStyle"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="@dimen/item_margin_padding_small"
+            android:text="50%" />
+
+        <SeekBar
+            android:id="@+id/seekBarPercent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/item_margin_padding_small"
+            android:max="75" />
+
+        <TextView
+            style="@style/TextStyle"
+            android:layout_marginStart="@dimen/item_margin_padding_small"
+            android:layout_marginTop="@dimen/item_margin_padding_normal"
+            android:text="@string/rotation"
+            android:textAllCaps="true" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupRotation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@id/radioNoRotation">
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioNoRotation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_rotation" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioFreeRotation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/free_rotation" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioSymmetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/perpendicular" />
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/radioCustom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/custom_rotation" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/txtDegree"
+            style="@style/TextStyle"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="@dimen/item_margin_padding_small"
+            android:text="90" />
+
+        <SeekBar
+            android:id="@+id/seekBarDegree"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/item_margin_padding_small"
+            android:max="360" />
+
+        <Button
+            android:id="@+id/btnChangeColors"
+            style="@style/Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/item_margin_padding_large"
+            android:onClick="buttonClick"
+            android:text="@string/change_colors"
+            android:textAllCaps="true" />
+    </LinearLayout>
+
+</RelativeLayout>

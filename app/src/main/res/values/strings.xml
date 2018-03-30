@@ -15,48 +15,79 @@
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="color">Color:</string>
+    <string name="undefined">undefined</string>
+    <string name="remove">Remove</string>
+    <string name="text_increasing_relation">Text increasing relation</string>
+    <string name="setting">Setting</string>
+    <string name="rotation">Rotation</string>
+    <string name="no_rotation">No rotation</string>
+    <string name="perpendicular">Perpendicular</string>
+    <string name="degree_90">90 degrees rotation</string>
+    <string name="free_rotation">Free rotation</string>
+    <string name="custom_rotation">Custom rotation</string>
+    <string name="change_colors">Change colors</string>
+    <string name="words">Words</string>
 
     <string name="message_save_confirm">Do you want to save the word cloud image?</string>
     <string name="message_delete_confirm">Delete all the selected items?</string>
-    <string name="message_save_guide">Click to the word cloud to save image to gallery!</string>
+    <string name="message_save_guide">Click the word cloud to save image to gallery!</string>
     <string name="message_select_at_least_one_word">Please select at least 1 word!</string>
     <string name="message_fill_words_before_update">Please fill in before update!</string>
     <string name="message_image_saved_to_gallery">Image saved to phone gallery!</string>
+    <string name="message_number_wrong_format">The number is wrong format</string>
 
     <string name="select_format">Selected(%d)</string>
+    <string name="level_format">Level %d</string>
 
     <string name="hint_enter_text_here">Enter text here&#8230;</string>
 
 
     <string name="dummies_data">How the Word Cloud Generator Works
-        The layout algorithm for positioning words without overlap is available on GitHub under an open source license as d3-cloud.
+        The layout algorithm for positioning words without overlap is available on GitHub under an open source license as d3-cloud
         Note that this is the only the layout algorithm and any code for converting text into words and rendering the final output
-        requires additional development.
-        As word placement can be quite slow for more than a few hundred words, the layout algorithm can be run asynchronously,
-        with a configurable time step size. This makes it possible to animate words as they are placed without stuttering. It is recommended to
-        always use a time step even without animations as it prevents the browser’s event loop from blocking while placing the words.
-        The layout algorithm itself is incredibly simple. For each word, starting with the most “important”:
-        Attempt to place the word at some starting point: usually near the middle, or somewhere on a central horizontal line.
-        If the word intersects with any previously placed words, move it one step along an increasing spiral. Repeat until no intersections are found.
-        The hard part is making it perform efficiently! According to Jonathan Feinberg, Wordle uses a combination of hierarchical bounding boxes
-        and quadtrees to achieve reasonable speeds.
-        Glyphs in JavaScript
-        There isn’t a way to retrieve precise glyph shapes via the DOM, except perhaps for SVG fonts.
-        Instead, we draw each word to a hidden canvas element, and retrieve the pixel data.
-        Retrieving the pixel data separately for each word is expensive, so we draw as many words as possible and then retrieve their
-        pixels in a batch operation.
-        Sprites and Masks
-        My initial implementation performed collision detection using sprite masks. Once a word is placed, it doesn't move,
-        so we can copy it to the appropriate position in a larger sprite representing the whole placement area.
-        The advantage of this is that collision detection only involves comparing a candidate sprite with the relevant area of this larger sprite,
-        rather than comparing with each previous word separately.
-        Somewhat surprisingly, a simple low-level hack made a tremendous difference: when constructing the sprite I compressed blocks of
-        32 1-bit pixels into 32-bit integers, thus reducing the number of checks (and memory) by 32 times.
-        In fact, this turned out to beat my hierarchical bounding box with quadtree implementation on everything I tried it on (even very
-        large areas and font sizes). I think this is primarily because the sprite version only needs to perform a single collision test per
-        candidate area, whereas the bounding box version has to compare with every other previously placed word that overlaps slightly with the
-        candidate area.
-        Another possibility would be to merge a word’s tree with a single large tree once it is placed. I think this operation would be
-        fairly expensive though compared with the analagous sprite mask operation, which is essentially ORing a whole block.
+        requires additional development
+        As word placement can be quite slow for more than a few hundred words, the layout algorithm can be run asynchronously
+        with a configurable time step size. This makes it possible to animate words as they are placed without stuttering It is recommended to
+        always use a time step even without animations as it prevents the browsers event loop from blocking while placing the words
+        The layout algorithm itself is incredibly simple For each word starting with the most important
+        Attempt to place the word at some starting point usually near the middle or somewhere on a central horizontal line
+        If the word intersects with any previously placed words move it one step along an increasing spiral Repeat until no intersections are found
+        The hard part is making it perform efficiently According to Jonathan Feinberg Wordle uses a combination of hierarchical bounding boxes
+        and quadtrees to achieve reasonable speeds Glyphs in JavaScript
+        There isnt a way to retrieve precise glyph shapes via the DOM except perhaps for SVG fonts
+        Instead we draw each word to a hidden canvas element and retrieve the pixel data
+        Retrieving the pixel data separately for each word is expensive so we draw as many words as possible and then retrieve their
+        pixels in a batch operation Sprites and Masks
+        My initial implementation performed collision detection using sprite masks. Once a word is placed it doesnt move
+        so we can copy it to the appropriate position in a larger sprite representing the whole placement area
+        The advantage of this is that collision detection only involves comparing a candidate sprite with the relevant area of this larger sprite
+        rather than comparing with each previous word separately
+        Somewhat surprisingly a simple low-level hack made a tremendous difference when constructing the sprite I compressed blocks of
+        32 1-bit pixels into 32-bit integers thus reducing the number of checks (and memory) by 32 times
+        In fact this turned out to beat my hierarchical bounding box with quadtree implementation on everything I tried it on even very
+        large areas and font sizes I think this is primarily because the sprite version only needs to perform a single collision test per
+        candidate area whereas the bounding box version has to compare with every other previously placed word that overlaps slightly with the
+        candidate area
+        Another possibility would be to merge a words tree with a single large tree once it is placed I think this operation would be
+        fairly expensive though compared with the analogous sprite mask operation which is essentially ORing a whole block
+        Women working for Facebook UK division get nearly half the amount of bonus pay than their male counterparts despite a similar
+        proportion of each sex getting some kind of top-up award The median gender bonus pay gap at the business However the equivalent gap
+        for hourly pay was much smaller That means when comparing median hourly rates hat headline figure compares favourably to Google UK which reported
+        median hourly rate gender pay gap earlier this week It told the BBC that part of the reason there was such a big gap in the amount they received
+        was because a higher proportion of its engineering teams and top-level executives were male than in other areas of the business Technical roles generally
+        have a higher market rate than other positions due to their more specialised skills but also the higher rate of demand for those skills in the marketplace
+        She added that the company hoped to tackle the discrepancy but that would involve more females being encouraged to study relevant subjects at school and university
+        It really requires a back to basics approach, and will require more than the efforts of Facebook to change fundamentally the difference between the
+        representation of men and women in the workplace particularly in technical careers Organisations with more than 250 workers have until 4 April to publish their
+        own pay gap data The figures are accessible to the public via a government website His account is marked as being but the BBC has learned that the US company
+        has decided to permanently revoke his access Twitter declined to comment but it is understood the decision was taken after Mr Robinson was judged to have breached its
+        It had previously temporarily suspended the activist several times
+        Mr Robinson whose real name is Stephen Lennon left the EDL in 2013 Most recently Twitter had blocked his account for a week at the start of March
+        He said at the time that the reason was that he had posted that 90 of grooming gang convictions are Muslims
+        The social network had removed his blue verification tick four months earlier
+        Mr Robinson @TRobinsonNewEra account had about 413000 followers at the time it was blocked
+        In addition, Twitter has acted against another account which had also been associated with the 35 year old
+        Mr Robinson continues to operate a Facebook page a YouTube account and a personal website
     </string>
 </resources>

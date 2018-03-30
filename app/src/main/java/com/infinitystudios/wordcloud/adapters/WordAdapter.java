@@ -33,12 +33,12 @@ public class WordAdapter extends RecyclerView.Adapter<WordViewHolder> {
         RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         view.setLayoutParams(layoutParams);
-        return new WordViewHolder(view);
+        return new WordViewHolder(view, mListener);
     }
 
     @Override
     public void onBindViewHolder(WordViewHolder holder, int position) {
-        holder.bind(mItems.get(position), mListener, position, enableDelete);
+        holder.bind(mItems.get(position), position, enableDelete);
     }
 
     @Override

@@ -26,6 +26,12 @@
             android:name=".activities.WordListActivity"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".activities.SettingActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activities.SettingColorsActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".activities.LandscapeActivity"
             android:screenOrientation="landscape" />

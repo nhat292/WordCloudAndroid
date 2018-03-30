@@ -31,6 +31,16 @@
         android:text="@string/full_screen"
         android:textAllCaps="true" />
 
+    <Button
+        android:id="@+id/btnSetting"
+        style="@style/Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/btnFullScreen"
+        android:layout_margin="@dimen/item_margin_padding_small"
+        android:onClick="buttonClick"
+        android:text="@string/setting"
+        android:textAllCaps="true" />
+
 
     <LinearLayout
         android:id="@+id/llButtons"

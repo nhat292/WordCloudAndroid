@@ -12,24 +12,28 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.infinitystudios.wordcloud.R;
 import com.infinitystudios.wordcloud.listeners.DialogListener;
+import com.infinitystudios.wordcloud.models.Word;
 import com.infinitystudios.wordcloud.utils.Helper;
 import com.infinitystudios.wordcloud.utils.SharedPreferenceData;
 import com.infinitystudios.wordcloud.views.WordCloudView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends BaseActivity implements WordCloudView.WordCloudListener {
 
     private static final int REQUEST_WORD_LIST = 100;
+    private static final int REQUEST_SETTING = 101;
     private static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 200;
 
+    // Views
     private WordCloudView wordCloudView;
     private EditText editText;
 
-
-    private String data;
+    // Other variables
+    private ArrayList<Word> mWords;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +51,10 @@ public class MainActivity extends BaseActivity implements WordCloudView.WordClou
 
     @Override
     public void onPageFinished(WebView view) {
-        if (data == null) {
-            data = SharedPreferenceData.getWordData();
+        if (mWords == null) {
+            mWords = SharedPreferenceData.getWordData();
         }
-        wordCloudView.updateData(data);
+        wordCloudView.updateData(mWords);
     }
 
     @Override
@@ -79,13 +83,21 @@ public class MainActivity extends BaseActivity implements WordCloudView.WordClou
     }
 
     @Override
+    public void onWordClick(String word, String link) {
+
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK) return;
         if (requestCode == REQUEST_WORD_LIST) {
-            this.data = data.getStringExtra("DATA");
-            wordCloudView.reload();
+            mWords = data.getParcelableArrayListExtra("DATA");
         }
+        if (requestCode == REQUEST_SETTING) {
+            mWords = SharedPreferenceData.getWordData();
+        }
+        wordCloudView.reload();
     }
 
     @Override
@@ -101,21 +113,33 @@ public class MainActivity extends BaseActivity implements WordCloudView.WordClou
     public void buttonClick(View view) {
         if (view.getId() == R.id.btnWordList) { // Open word list activity
             Intent intent = new Intent(this, WordListActivity.class);
-            intent.putExtra("DATA", data);
+            intent.putParcelableArrayListExtra("DATA", mWords);
             startActivityForResult(intent, REQUEST_WORD_LIST);
         } else if (view.getId() == R.id.btnUpdate) { // Update
             String words = editText.getText().toString().trim();
-            if (words.isEmpty()) {
-                Toast.makeText(getApplicationContext(), getString(R.string.message_fill_words_before_update), Toast.LENGTH_LONG).show();
-                return;
+            String[] split = words.split(" ");
+            for (String word : split) {
+                if (word.isEmpty()) continue;
+                boolean addNew = true;
+                for (Word w : mWords) {
+                    if (w.getWord().equals(word)) {
+                        w.setNumber(w.getNumber() + 1);
+                        addNew = false;
+                    }
+                }
+                if (addNew) {
+                    mWords.add(new Word(word, 1, null));
+                }
             }
-            data = words;
             wordCloudView.reload();
-            SharedPreferenceData.setWordData(data);
-        } else {
+            SharedPreferenceData.setWordData(mWords);
+        } else if (view.getId() == R.id.btnFullScreen) {
             Intent intent = new Intent(this, LandscapeActivity.class);
-            intent.putExtra("DATA", data);
+            intent.putParcelableArrayListExtra("DATA", mWords);
             startActivity(intent);
+        } else { // Setting
+            SharedPreferenceData.setWordData(mWords);
+            startActivityForResult(new Intent(this, SettingActivity.class), REQUEST_SETTING);
         }
     }
 
@@ -125,14 +149,14 @@ public class MainActivity extends BaseActivity implements WordCloudView.WordClou
         String filename = "WORDCLOUD_" + System.currentTimeMillis() + ".jpg";
         Helper.saveBitmapToFile(bitmap, filename);
 
-        Toast.makeText(getApplicationContext(), getString(R.string.message_image_saved_to_gallery), Toast.LENGTH_LONG).show();
+        showToast(R.string.message_image_saved_to_gallery);
     }
 
     private void showGuideIfNeeded() {
         if (SharedPreferenceData.isShowGuideMain()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-            View view = getLayoutInflater().inflate(R.layout.guide_layout, null);
+            View view = getLayoutInflater().inflate(R.layout.guide_popup_layout, null);
             builder.setView(view);
             final AppCompatCheckBox checkBox = view.findViewById(R.id.checkboxDoNotShowAgain);
 

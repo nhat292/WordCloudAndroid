@@ -2,16 +2,18 @@ package com.infinitystudios.wordcloud.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.infinitystudios.wordcloud.R;
@@ -19,15 +21,13 @@ import com.infinitystudios.wordcloud.adapters.WordAdapter;
 import com.infinitystudios.wordcloud.listeners.DialogListener;
 import com.infinitystudios.wordcloud.listeners.RecyclerViewItemListener;
 import com.infinitystudios.wordcloud.models.Word;
-import com.infinitystudios.wordcloud.utils.Helper;
 import com.infinitystudios.wordcloud.utils.SharedPreferenceData;
 import com.infinitystudios.wordcloud.utils.SpacesItemDecoration;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+
+import static com.infinitystudios.wordcloud.utils.Helper.formatColorValues;
+import static com.infinitystudios.wordcloud.utils.Helper.sortWordsDescending;
 
 /**
  * Created by Nhat on 3/27/18.
@@ -35,13 +35,15 @@ import java.util.Map;
 
 public class WordListActivity extends BaseActivity {
 
+    // Views
     private RecyclerView recyclerViewWord;
     private RelativeLayout rlDelete;
     private TextView txtSelectCount;
     private CheckBox checkboxAll;
     private TextView txtEmpty;
 
-    private List<Word> mItems = new ArrayList<>();
+    // Other variables
+    private ArrayList<Word> mWords;
     private WordAdapter mWordAdapter;
     private boolean hasChanged;
 
@@ -60,66 +62,54 @@ public class WordListActivity extends BaseActivity {
 
         rlDelete.setVisibility(View.GONE);
 
+        setup();
+    }
 
+    @Override
+    public void onBackPressed() {
+        if (hasChanged) {
+            Intent intent = new Intent();
+            intent.putParcelableArrayListExtra("DATA", new ArrayList<>(mWords));
+            setResult(RESULT_OK, intent);
+        }
+        super.onBackPressed();
+    }
+
+    private void setup() {
         int spacingInPixels = (int) getResources().getDimension(R.dimen.word_item_spacing);
         recyclerViewWord.addItemDecoration(new SpacesItemDecoration(0, spacingInPixels, 0, 0, false));
 
-        mWordAdapter = new WordAdapter(mItems, new RecyclerViewItemListener() {
+        mWordAdapter = new WordAdapter(mWords, new RecyclerViewItemListener() {
             @Override
             public void onClick(final int position, int type) {
                 if (type == TYPE_CHECKED) {
                     updateChecked(getCheckedCount());
                 }
 
-                if (type == TYPE_ITEM) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(WordListActivity.this);
-                    final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(WordListActivity.this, R.layout.simple_list_item);
-                    arrayAdapter.add(getString(R.string.edit));
-                    arrayAdapter.add(getString(R.string.delete));
-                    builder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                if (type == TYPE_EDIT) {
+                    showEditPopup(position);
+                }
+                if (type == TYPE_DELETE) {
+                    new Handler().postDelayed(new Runnable() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int which) {
-                            dialogInterface.dismiss();
-                            if (which == 0) { // Edit
-                                showEditPopup(position);
-                            } else { // Delete
-                                // Show delete layout
-                                rlDelete.setVisibility(View.VISIBLE);
+                        public void run() {
+                            // Show delete layout
+                            rlDelete.setVisibility(View.VISIBLE);
 
-                                // Notify adapter changed
-                                mWordAdapter.setEnableDelete(true);
-                                mItems.get(position).setChecked(true);
-                                notifyChangeAllItemsDelay();
+                            // Notify adapter changed
+                            mWordAdapter.setEnableDelete(true);
+                            mWords.get(position).setChecked(true);
+                            notifyChangeAllItemsDelay();
 
-                                // Update selected count
-                                updateChecked(1);
-                            }
+                            // Update selected count
+                            updateChecked(1);
                         }
-                    });
-                    builder.show();
+                    }, 400);
                 }
             }
         });
         recyclerViewWord.setAdapter(mWordAdapter);
         showEmptyIfNeeded();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (hasChanged) {
-            StringBuilder stringBuilder = new StringBuilder("");
-            for (Word word : mItems) {
-                for (int i = 0; i < word.getNumber(); i++) {
-                    stringBuilder.append(word.getWord()).append(" ");
-                }
-            }
-            String data = stringBuilder.toString();
-            SharedPreferenceData.setWordData(data);
-            Intent intent = new Intent();
-            intent.putExtra("DATA", data);
-            setResult(RESULT_OK, intent);
-        }
-        super.onBackPressed();
     }
 
 
@@ -150,12 +140,12 @@ public class WordListActivity extends BaseActivity {
                         public void onPositive(DialogInterface dialogInterface) {
                             if (checkboxAll.isChecked()) {
                                 hasChanged = true;
-                                mItems.clear();
+                                mWords.clear();
                                 mWordAdapter.notifyDataSetChanged();
                             } else {
-                                for (int i = mItems.size() - 1; i >= 0; i--) {
-                                    if (mItems.get(i).isChecked()) {
-                                        mItems.remove(i);
+                                for (int i = mWords.size() - 1; i >= 0; i--) {
+                                    if (mWords.get(i).isChecked()) {
+                                        mWords.remove(i);
                                         mWordAdapter.itemRemoved(i);
                                         hasChanged = true;
                                     }
@@ -180,41 +170,93 @@ public class WordListActivity extends BaseActivity {
     }
 
     private void prepareData() {
-        String data = getIntent().getStringExtra("DATA");
-        String[] split = Helper.replaceSpecialCharacters(data).split(" ");
-
-        Map<String, Integer> map = Helper.getMapDataWithUniqueKey(split);
-
-        for (Map.Entry entry : map.entrySet()) {
-            mItems.add(new Word((String) entry.getKey(), (int) entry.getValue()));
-        }
-
-        // Sort array list
-        Collections.sort(mItems, new Comparator<Word>() {
-            @Override
-            public int compare(Word w1, Word w2) {
-                if (w1.getNumber() < w2.getNumber()) {
-                    return 1;
-                } else if (w1.getNumber() > w2.getNumber()) {
-                    return -1;
-                }
-                return 0;
-            }
-        });
+        mWords = SharedPreferenceData.getWordData();
+        sortWordsDescending(mWords);
     }
 
+
+    private String currentColor;
+
     private void showEditPopup(final int position) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(WordListActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.edit));
 
-        View view = getLayoutInflater().inflate(R.layout.edittext_item, null);
+        final View view = getLayoutInflater().inflate(R.layout.edit_popup_layout, null);
         builder.setView(view);
+
         final EditText editWord = view.findViewById(R.id.editWord);
         final EditText editNumber = view.findViewById(R.id.editNumber);
-        editWord.setText(mItems.get(position).getWord());
-        editNumber.setText(String.valueOf(mItems.get(position).getNumber()));
+        final SeekBar seekBarRed = view.findViewById(R.id.seekBarRed);
+        final SeekBar seekBarGreen = view.findViewById(R.id.seekBarGreen);
+        final SeekBar seekBarBlue = view.findViewById(R.id.seekBarBlue);
+        final TextView txtUndefined = view.findViewById(R.id.txtUndefined);
+        final View viewColor = view.findViewById(R.id.viewColor);
+        final Button btnRemove = view.findViewById(R.id.btnRemove);
 
-        builder.setNegativeButton(getString(R.string.save), new DialogInterface.OnClickListener() {
+        btnRemove.setVisibility(View.GONE);
+        btnRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentColor = null;
+                txtUndefined.setVisibility(View.VISIBLE);
+                viewColor.setVisibility(View.GONE);
+                btnRemove.setVisibility(View.GONE);
+            }
+        });
+
+        SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                int red = seekBarRed.getProgress();
+                int green = seekBarGreen.getProgress();
+                int blue = seekBarBlue.getProgress();
+                currentColor = formatColorValues(red, green, blue);
+                if (txtUndefined.getVisibility() == View.VISIBLE) {
+                    txtUndefined.setVisibility(View.GONE);
+                    viewColor.setVisibility(View.VISIBLE);
+                    btnRemove.setVisibility(View.VISIBLE);
+                }
+                viewColor.setBackgroundColor(Color.parseColor(currentColor));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        };
+
+        seekBarRed.setOnSeekBarChangeListener(listener);
+        seekBarGreen.setOnSeekBarChangeListener(listener);
+        seekBarBlue.setOnSeekBarChangeListener(listener);
+
+        Word word = mWords.get(position);
+
+        editWord.setText(word.getWord());
+        editNumber.setText(String.valueOf(word.getNumber()));
+
+        if (word.getColor() == null) {
+            viewColor.setVisibility(View.GONE);
+        } else {
+            currentColor = word.getColor();
+            btnRemove.setVisibility(View.VISIBLE);
+            try {
+                int intColor = Color.parseColor(currentColor);
+                seekBarRed.setProgress(Color.red(intColor));
+                seekBarGreen.setProgress(Color.green(intColor));
+                seekBarBlue.setProgress(Color.blue(intColor));
+                viewColor.setBackgroundColor(Color.parseColor(word.getColor()));
+                txtUndefined.setVisibility(View.GONE);
+            } catch (Exception e) {
+                viewColor.setVisibility(View.GONE);
+            }
+        }
+
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -223,15 +265,33 @@ public class WordListActivity extends BaseActivity {
         builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                String word = editWord.getText().toString();
-                String number = editNumber.getText().toString();
-                if (!word.isEmpty() && !number.isEmpty()) {
-                    mItems.get(position).setWord(word);
-                    mItems.get(position).setNumber(Integer.parseInt(number));
-                    mWordAdapter.notifyItemChanged(position);
-                    hasChanged = true;
+                try {
+                    String word = editWord.getText().toString();
+                    String number = editNumber.getText().toString();
+                    if (!word.isEmpty() && !number.isEmpty()) {
+                        mWords.get(position).setWord(word);
+                        mWords.get(position).setColor(currentColor);
+                        int n = Integer.parseInt(number);
+                        boolean notifyForAll = false;
+                        if (n != mWords.get(position).getNumber()) {
+                            notifyForAll = true;
+                        }
+                        mWords.get(position).setNumber(Integer.parseInt(number));
+
+                        if (notifyForAll) {
+                            sortWordsDescending(mWords);
+                            notifyChangeAllItems();
+                        } else {
+                            mWordAdapter.notifyItemChanged(position);
+                        }
+                        hasChanged = true;
+                    }
+                    // Save to SharedPreferences
+                    SharedPreferenceData.setWordData(mWords);
+                } catch (Exception e) {
+                    showToast(R.string.message_number_wrong_format);
+                    e.printStackTrace();
                 }
-                dialogInterface.dismiss();
             }
         });
 
@@ -242,7 +302,7 @@ public class WordListActivity extends BaseActivity {
 
     private int getCheckedCount() {
         int count = 0;
-        for (Word w : mItems) {
+        for (Word w : mWords) {
             if (w.isChecked()) {
                 count++;
             }
@@ -258,29 +318,29 @@ public class WordListActivity extends BaseActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                mWordAdapter.notifyItemRangeChanged(0, mItems.size() - 1);
+                notifyChangeAllItems();
             }
         }, 100);
     }
 
     private void notifyChangeAllItems() {
-        mWordAdapter.notifyItemRangeChanged(0, mItems.size() - 1);
+        mWordAdapter.notifyItemRangeChanged(0, mWords.size());
     }
 
     private void hideDelete() {
         mWordAdapter.setEnableDelete(false);
-        notifyChangeAllItemsDelay();
         rlDelete.setVisibility(View.GONE);
+        notifyChangeAllItemsDelay();
     }
 
     private void selectAll(boolean checked) {
-        for (Word w : mItems) {
+        for (Word w : mWords) {
             w.setChecked(checked);
         }
     }
 
     private void showEmptyIfNeeded() {
-        if (mItems.size() == 0) {
+        if (mWords.size() == 0) {
             txtEmpty.setVisibility(View.VISIBLE);
         }
     }

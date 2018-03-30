@@ -5,19 +5,24 @@
   <script src="libs/d3.js" charset="utf-8"></script>
   <script src="libs/d3.layout.cloud.js"></script>
   <script src="d3.wordcloud.js"></script>
+  <script src="example.words.js"></script>
 </head>
 
 <body>
   <div id='wordcloud'></div>
   <script>
-    function load(words) {
+    function load(words, rotate) {
+      if(rotate) {
+        window.rotate = rotate;
+      }
       d3.wordcloud()
         .size([window.innerWidth, window.innerHeight])
         .fill(d3.scale.ordinal().range(["#884400", "#448800", "#888800", "#444400"]))
         .words(words)
         .onwordclick(function(d, i) {
-          if (d.href) {
-            window.location = d.href;
+          if (d.text && window.AndroidBridge) {
+            var link = d.href ? d.href : 'http://infinitycore.sg/';
+            window.AndroidBridge.onWordClick(d.text, link);
           }
         })
         .start();
